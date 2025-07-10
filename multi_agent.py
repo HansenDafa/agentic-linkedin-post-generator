@@ -12,35 +12,30 @@ def call_ollama(model, prompt):
     response = ollama.generate(model=model, prompt=prompt)
     return response['response'].strip()
 
-def multi_agent_pipeline(entry, style="inspirational"):
+def multi_agent_pipeline(entry, style="inspirational", iterations=2):
     log = []
 
-    # ✍️ Generator Agent
-    log.append("🔹 [Generator] Creating first draft...")
     draft = call_ollama(GEN_MODEL, generator_prompt(entry))
+    log.append("🔹 Initial draft:")
     log.append(draft)
 
-    # 🧐 Critic Agent
-    log.append("🔹 [Critic] Reviewing the draft...")
-    feedback = call_ollama(CRITIC_MODEL, critic_prompt(draft))
-    log.append(feedback)
+    for i in range(iterations):
+        log.append(f"🔁 Iteration {i+1}: Critique + Improve")
 
-    # ✍️ Rewriting with Critique
-    log.append("🔹 [Generator] Improving based on critique...")
-    improved = call_ollama(GEN_MODEL, refine_prompt(draft, feedback))
-    log.append(improved)
+        feedback = call_ollama(CRITIC_MODEL, critic_prompt(draft))
+        log.append(f"🧐 Critique:\n{feedback}")
 
-    # 🎨 Stylist Agent
-    log.append(f"🔹 [Stylist] Applying '{style}' style...")
-    styled = call_ollama(STYLE_MODEL, stylist_prompt(improved, style))
-    log.append(styled)
+        draft = call_ollama(GEN_MODEL, refine_prompt(draft, feedback))
+        log.append(f"✍️ Revised:\n{draft}")
 
-    # 📊 Optimizer Agent
-    log.append("🔹 [Optimizer] Final polish (hashtags, CTA, emojis)...")
-    optimized = call_ollama(OPTIMIZER_MODEL, optimizer_prompt(styled, entry))
-    log.append(optimized)
+    # Final stylist + polish
+    styled = call_ollama(STYLE_MODEL, stylist_prompt(draft, style))
+    log.append(f"🎨 Stylist applied ({style})")
+
+    final = call_ollama(OPTIMIZER_MODEL, optimizer_prompt(styled, entry))
+    log.append("📊 Optimized with hashtags + CTA")
 
     return {
         "log": log,
-        "final": optimized
+        "final": final
     }

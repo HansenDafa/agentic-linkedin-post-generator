@@ -16,10 +16,12 @@ if uploaded_file:
     selected_idx = st.selectbox("Choose an entry:", range(len(entries)), format_func=lambda i: entries[i]['Title'])
     style = st.selectbox("Choose tone style:", ["inspirational", "funny", "concise", "professional"])
 
+    iterations = st.slider("How many refinement iterations?", 1, 5, 2)
+
 
 if st.button("Run Multi-Agent Generator"):
     with st.spinner("Agents are collaborating..."):
-        result = multi_agent_pipeline(entries[selected_idx], style=style)
+        result = multi_agent_pipeline(entries[selected_idx], style=style, iterations=iterations)
 
     with st.expander("🧠 Agent Logs"):
         for step in result['log']:
