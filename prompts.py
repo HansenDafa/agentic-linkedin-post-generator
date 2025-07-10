@@ -59,3 +59,34 @@ Action: Rewrite the post to make it more polished and effective, keeping the sam
 
 Final Improved Post:
 """
+def stylist_prompt(draft, tone):
+    return f"""
+You are a stylist rewriting professional posts.
+
+Here's the draft:
+\"\"\"
+{draft}
+\"\"\"
+
+Apply a **{tone}** tone to it. Keep it professional, and keep meaning intact.
+
+Return the rewritten post:
+"""
+
+def optimizer_prompt(styled_draft, entry):
+    return f"""
+You are an assistant finalizing LinkedIn posts.
+
+This is the current draft:
+\"\"\"
+{styled_draft}
+\"\"\"
+
+Your job is to:
+- Add relevant hashtags (especially from this list: {entry['Tags']})
+- Use emojis where appropriate
+- Add a short call-to-action if it fits
+- Fix any awkward phrasing
+
+Final polished post:
+"""

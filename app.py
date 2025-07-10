@@ -2,7 +2,7 @@
 
 import streamlit as st
 import pandas as pd
-from react_agent import react_agent
+from multi_agent import multi_agent_pipeline
 
 st.title("🧠 Agentic LinkedIn Post Generator")
 st.caption("Powered by LLaMA3 + ReAct-style iteration via Ollama")
@@ -14,20 +14,17 @@ if uploaded_file:
     entries = df.to_dict(orient='records')
 
     selected_idx = st.selectbox("Choose an entry:", range(len(entries)), format_func=lambda i: entries[i]['Title'])
+    style = st.selectbox("Choose tone style:", ["inspirational", "funny", "concise", "professional"])
 
-    if st.button("Generate LinkedIn Post"):
-        with st.spinner("Reasoning, generating, critiquing..."):
-            result = react_agent(entries[selected_idx])
 
-        with st.expander("🧠 Agent Reasoning"):
-            for step in result['reasoning']:
-                st.markdown(f"- {step}")
+if st.button("Run Multi-Agent Generator"):
+    with st.spinner("Agents are collaborating..."):
+        result = multi_agent_pipeline(entries[selected_idx], style=style)
+
+    with st.expander("🧠 Agent Logs"):
+        for step in result['log']:
+            st.markdown(f"- {step}")
         
-        st.subheader("📝 Initial Draft")
-        st.write(result['draft'])
 
-        st.subheader("🔍 Critique Feedback")
-        st.write(result['feedback'])
-
-        st.subheader("✅ Final Refined Post")
-        st.success(result['refined'])
+    st.subheader("🚀 Final LinkedIn Post")
+    st.success(result['final'])
